@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Teacher Admin Panel</title>
+  <title>Teacher Attendance Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Tailwind CDN -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-gradient-to-br from-slate-100 to-slate-200 min-h-screen">
 
-<!-- LOGIN SCREEN -->
+<!-- ================= LOGIN ================= -->
 <div id="loginBox" class="flex items-center justify-center min-h-screen">
   <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-sm">
     <h1 class="text-2xl font-bold text-center mb-6 text-slate-700">
@@ -35,7 +35,7 @@
   </div>
 </div>
 
-<!-- DASHBOARD -->
+<!-- ================= DASHBOARD ================= -->
 <div id="dashboard" class="hidden p-6 max-w-6xl mx-auto">
 
   <!-- HEADER -->
@@ -74,7 +74,7 @@
   <!-- QR + DATE -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 
-    <!-- QR BOX -->
+    <!-- QR -->
     <div class="bg-white p-4 rounded-xl shadow text-center">
       <h3 class="font-semibold mb-3 text-slate-600">Attendance QR</h3>
       <div id="qrBox" class="flex justify-center items-center h-52 text-slate-400">
@@ -92,7 +92,7 @@
       <div class="flex gap-2">
         <button onclick="loadHistory()"
           class="flex-1 bg-blue-600 text-white rounded p-2 hover:bg-blue-700 transition">
-          View
+          View Attendance
         </button>
 
         <button onclick="exportExcel()"
@@ -118,7 +118,13 @@
           <th class="p-3 text-left">Status</th>
         </tr>
       </thead>
-      <tbody id="table"></tbody>
+      <tbody id="table">
+        <tr>
+          <td colspan="3" class="p-4 text-center text-gray-500">
+            Select a date and click “View Attendance”
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 
