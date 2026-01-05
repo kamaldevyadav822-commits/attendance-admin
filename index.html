@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Teacher Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+<!-- LOGIN -->
+<div id="loginBox" class="bg-white p-6 rounded shadow w-full max-w-sm">
+  <h2 class="text-xl font-bold mb-4 text-center">Teacher Login</h2>
+
+  <input id="username" class="w-full border p-2 mb-3" placeholder="Username">
+  <input id="password" type="password" class="w-full border p-2 mb-3" placeholder="Password">
+
+  <button onclick="login()" class="w-full bg-blue-600 text-white py-2 rounded">
+    Login
+  </button>
+
+  <p id="loginError" class="text-red-500 mt-2 text-center"></p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden bg-white p-6 rounded shadow w-full max-w-5xl">
+
+  <h2 class="text-2xl font-bold mb-4">Teacher Dashboard</h2>
+
+  <!-- CONTROLS -->
+  <div class="flex flex-wrap gap-2 mb-4">
+    <select id="dept" class="border p-2">
+      <option value="SCM">SCM</option>
+      <option value="EXIM">EXIM</option>
+    </select>
+
+    <input id="duration" type="number" class="border p-2" placeholder="Duration (min)">
+
+    <button onclick="startSession()" class="bg-green-600 text-white px-4 py-2 rounded">
+      Start Attendance
+    </button>
+
+    <button onclick="generateQR()" class="bg-purple-600 text-white px-4 py-2 rounded">
+      Generate QR
+    </button>
+  </div>
+
+  <!-- QR -->
+  <div id="qrBox" class="my-4"></div>
+
+  <!-- HISTORY -->
+  <div class="flex gap-2 mb-4">
+    <input id="date" type="date" class="border p-2">
+    <button onclick="loadHistory()" class="bg-blue-600 text-white px-4 py-2 rounded">
+      View Attendance
+    </button>
+    <button onclick="exportExcel()" class="bg-gray-700 text-white px-4 py-2 rounded">
+      Export Excel
+    </button>
+  </div>
+
+  <!-- LOADER -->
+  <div id="loader" class="hidden text-center py-4">
+    <span class="animate-spin text-xl">⏳</span>
+  </div>
+
+  <!-- TABLE -->
+  <table class="w-full border text-sm" id="table"></table>
+
+</div>
+
+<script src="js/admin.js"></script>
+</body>
+</html>
