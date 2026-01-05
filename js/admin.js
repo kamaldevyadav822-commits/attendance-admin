@@ -1,14 +1,16 @@
 const BACKEND = "https://attendance-backend-5f7f.onrender.com";
-
 let teacherId = null;
 
+// ---------- UI HELPERS ----------
 function showLoader(show) {
   loader.classList.toggle("hidden", !show);
 }
 
-// LOGIN
+// ---------- LOGIN ----------
 function login() {
+  loginError.innerText = "";
   showLoader(true);
+
   fetch(`${BACKEND}/api/teacher/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -17,21 +19,37 @@ function login() {
       password: password.value
     })
   })
-  .then(r => r.json())
-  .then(d => {
-    showLoader(false);
-    if (d.teacher_id) {
-      teacherId = d.teacher_id;
-      loginBox.classList.add("hidden");
-      dashboard.classList.remove("hidden");
-    } else {
-      loginError.innerText = d.error;
-    }
-  });
+    .then(res => res.json())
+    .then(data => {
+      showLoader(false);
+      if (data.teacher_id) {
+        teacherId = data.teacher_id;
+        loginBox.classList.add("hidden");
+        dashboard.classList.remove("hidden");
+      } else {
+        loginError.innerText = data.error || "Login failed";
+      }
+    })
+    .catch(() => {
+      showLoader(false);
+      loginError.innerText = "Server error";
+    });
 }
 
-// START SESSION
+// ---------- LOGOUT ----------
+function logout() {
+  teacherId = null;
+  dashboard.classList.add("hidden");
+  loginBox.classList.remove("hidden");
+}
+
+// ---------- START SESSION ----------
 function startSession() {
+  if (!duration.value || duration.value <= 0) {
+    alert("Enter valid duration");
+    return;
+  }
+
   fetch(`${BACKEND}/api/sessions/start`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -41,44 +59,106 @@ function startSession() {
       duration_minutes: duration.value
     })
   })
-  .then(r => r.json())
-  .then(d => alert(d.session_id || d.error));
+    .then(res => res.json())
+    .then(data => {
+      alert(data.session_id || data.error);
+    });
 }
 
-// QR GENERATION
+// ---------- GENERATE QR ----------
 function generateQR() {
+  qrBox.innerHTML = "Generating QR...";
+
   fetch(`${BACKEND}/api/admin/qr?teacher_id=${teacherId}`)
-    .then(r => r.json())
-    .then(d => {
+    .then(res => res.json())
+    .then(data => {
       qrBox.innerHTML = `
-        <img class="border p-2"
-        src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(d.qr_url)}">
+        <img
+          class="border p-2 rounded"
+          src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
+            data.qr_url
+          )}"
+        />
       `;
     });
 }
 
-// HISTORY
+// ---------- LOAD HISTORY ----------
 function loadHistory() {
+  const selectedDate = date.value;
+
+  if (!selectedDate) {
+    alert("Please select a date first");
+    return;
+  }
+
   showLoader(true);
-  fetch(`${BACKEND}/api/admin/history?teacher_id=${teacherId}&department=${dept.value}&date=${date.value}`)
-    .then(r => r.json())
+  table.innerHTML = `
+    <tr>
+      <td colspan="3" class="p-4 text-center text-gray-500">
+        Loading attendance...
+      </td>
+    </tr>
+  `;
+
+  fetch(
+    `${BACKEND}/api/admin/history?teacher_id=${teacherId}&department=${dept.value}&date=${selectedDate}`
+  )
+    .then(res => res.json())
     .then(rows => {
       showLoader(false);
-      table.innerHTML = "<tr class='border'><th>Name</th><th>Roll</th><th>Status</th></tr>";
+      table.innerHTML = "";
+
+      if (!rows || rows.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="3" class="p-4 text-center text-gray-500">
+              No attendance found for this date
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
       rows.forEach(r => {
-        table.innerHTML += `<tr class='border'>
-          <td>${r.name}</td>
-          <td>${r.roll_no}</td>
-          <td>${r.status}</td>
-        </tr>`;
+        table.innerHTML += `
+          <tr class="border-b">
+            <td class="p-3">${r.name}</td>
+            <td class="p-3">${r.roll_no}</td>
+            <td class="p-3 font-semibold ${
+              r.status === "PRESENT"
+                ? "text-green-600"
+                : "text-red-600"
+            }">
+              ${r.status}
+            </td>
+          </tr>
+        `;
       });
+    })
+    .catch(() => {
+      showLoader(false);
+      table.innerHTML = `
+        <tr>
+          <td colspan="3" class="p-4 text-center text-red-500">
+            Failed to load attendance
+          </td>
+        </tr>
+      `;
     });
 }
 
-// EXCEL EXPORT
+// ---------- EXPORT EXCEL ----------
 function exportExcel() {
+  const selectedDate = date.value;
+
+  if (!selectedDate) {
+    alert("Please select a date first");
+    return;
+  }
+
   window.open(
-    `${BACKEND}/api/admin/export?teacher_id=${teacherId}&department=${dept.value}&date=${date.value}`,
+    `${BACKEND}/api/admin/export?teacher_id=${teacherId}&department=${dept.value}&date=${selectedDate}`,
     "_blank"
   );
-}
+      }
